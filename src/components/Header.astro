@@ -15,19 +15,19 @@ const path = Astro.url.pathname;
 
 <header class="border-b border-edge sticky top-0 z-40 bg-surface">
   <div class="max-w-[1200px] mx-auto px-6 py-4 md:py-5">
-    <div class="flex items-center justify-between gap-8">
-      <!-- Logo / Home -->
+    <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-2">
+      <!-- Name / Home -->
       <a
         href={url('/')}
-        class="font-mono text-sm font-bold text-content hover:text-accent transition-colors shrink-0"
+        class="font-mono text-xs sm:text-sm font-bold text-content hover:text-accent transition-colors shrink-0 whitespace-nowrap"
       >
-        PV
+        Priyanka Vijaybaskar
       </a>
 
       <!-- Primary nav — hidden on mobile -->
       <nav
         aria-label="Main navigation"
-        class="hidden sm:flex items-center gap-6 md:gap-8"
+        class="hidden sm:flex flex-wrap items-center gap-x-6 gap-y-2 md:gap-x-8"
       >
         {navLinks.map((link) => (
           <a

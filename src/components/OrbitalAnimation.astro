@@ -80,17 +80,19 @@ const quickLinks = [
 
 <script>
   interface Body {
-    a: number;     // semi-major axis, as a fraction of the canvas half-size
-    e: number;     // eccentricity
-    T: number;     // period, seconds
-    phase: number; // initial phase, radians
-    radius: number; // dot radius, px — a mild depth cue between bodies
+    a: number;         // semi-major axis, as a fraction of the canvas half-size
+    e: number;         // eccentricity
+    T: number;         // period, seconds
+    phase: number;     // initial argument of periapsis, radians
+    radius: number;    // dot radius, px
+    incl: number;      // orbital plane tilt, radians — what makes the ellipse read as 3D
+    precession: number; // rad/sec drift of the periapsis — keeps the pattern from repeating exactly
   }
 
   const bodies: Body[] = [
-    { a: 0.20, e: 0.15, T: 21, phase: 0, radius: 7 },
-    { a: 0.34, e: 0.35, T: 26, phase: (2 * Math.PI) / 3, radius: 9 },
-    { a: 0.46, e: 0.5, T: 30, phase: (4 * Math.PI) / 3, radius: 11 },
+    { a: 0.20, e: 0.15, T: 21, phase: 0, radius: 10, incl: 1.02, precession: 0.010 },
+    { a: 0.34, e: 0.35, T: 26, phase: (2 * Math.PI) / 3, radius: 13, incl: 0.73, precession: -0.007 },
+    { a: 0.46, e: 0.5, T: 30, phase: (4 * Math.PI) / 3, radius: 16, incl: 0.44, precession: 0.005 },
   ];
 
   const TRAIL_MS = 2000; // ~2s fading trail, independent of frame rate
@@ -111,7 +113,8 @@ const quickLinks = [
     let W = 0, H = 0, baseCenterX = 0, baseCenterY = 0, R = 0;
     let centerX = 0, centerY = 0; // eased, cursor-following focus
     let targetCenterX = 0, targetCenterY = 0;
-    let orbitColor = 'rgba(158, 158, 158, 0.25)';
+    let orbitColorBack = 'rgba(158, 158, 158, 0.16)';
+    let orbitColorFront = 'rgba(31, 79, 216, 0.45)';
     let accentColor = '#1F4FD8';
     let accentTrailBase = '31, 79, 216'; // r,g,b for the accent, used with alpha
 
@@ -122,13 +125,18 @@ const quickLinks = [
       return `${r}, ${g}, ${b}`;
     }
 
+    // Two path colors carry the 3D read: the half of each ellipse curving
+    // away from the viewer is dim neutral gray, the half curving toward
+    // the viewer is tinted accent and brighter — the same trick used to
+    // sell a tilted ring as three-dimensional without a real z-buffer.
     function readColors(): void {
       const styles = getComputedStyle(document.documentElement);
       const border = styles.getPropertyValue('--border').trim() || '#DEDEDA';
       accentColor = styles.getPropertyValue('--accent').trim() || '#1F4FD8';
       accentTrailBase = hexToRgbTriplet(accentColor);
-      const rgb = hexToRgbTriplet(border);
-      orbitColor = `rgba(${rgb}, 0.25)`;
+      const borderRgb = hexToRgbTriplet(border);
+      orbitColorBack = `rgba(${borderRgb}, 0.16)`;
+      orbitColorFront = `rgba(${accentTrailBase}, 0.45)`;
     }
 
     // offsetWidth/offsetHeight are layout dimensions — untouched by the
@@ -160,51 +168,84 @@ const quickLinks = [
       return E;
     }
 
-    function positionAt(body: Body, meanAnomaly: number): { x: number; y: number } {
+    interface Point3 { x: number; y: number; depth: number } // x,y local (un-translated); depth in [-1,1]
+
+    // The orbit is computed flat (in-plane), then tilted around the
+    // horizontal axis by `incl`: the in-plane y compresses toward the
+    // canvas by cos(incl), and the same in-plane y (normalized to
+    // [-1, 1] by the ellipse's own extent) becomes `depth` — how far
+    // toward or away from the viewer that point sits. depth >= 0 is
+    // "in front of" the shared focus; depth < 0 is "behind" it.
+    function positionAt3D(body: Body, meanAnomaly: number, effPhase: number): Point3 {
       const E = solveKepler(meanAnomaly, body.e);
       const nu = trueAnomaly(E, body.e);
       const a = body.a * R;
       const r = (a * (1 - body.e ** 2)) / (1 + body.e * Math.cos(nu));
+      const xOrb = r * Math.cos(nu + effPhase);
+      const yOrb = r * Math.sin(nu + effPhase);
+      const maxExtent = a * (1 + body.e);
       return {
-        x: centerX + r * Math.cos(nu + body.phase),
-        y: centerY + r * Math.sin(nu + body.phase),
+        x: xOrb,
+        y: yOrb * Math.cos(body.incl),
+        depth: maxExtent > 0 ? yOrb / maxExtent : 0,
       };
     }
 
     function drawFocus(): void {
-      const glowR = R * 0.4;
+      const glowR = R * 0.42;
       const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, glowR);
-      gradient.addColorStop(0, `rgba(${accentTrailBase}, 0.12)`);
+      gradient.addColorStop(0, `rgba(${accentTrailBase}, 0.18)`);
       gradient.addColorStop(1, `rgba(${accentTrailBase}, 0)`);
       ctx.fillStyle = gradient;
       ctx.fillRect(centerX - glowR, centerY - glowR, glowR * 2, glowR * 2);
+
+      // A small solid point at the shared focus — the thing the front
+      // arcs visually pass in front of, and the back arcs pass behind.
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = accentColor;
+      ctx.fillStyle = accentColor;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 3, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.shadowBlur = 0;
     }
 
-    function drawOrbit(body: Body): void {
+    // Draws only the front (depth >= 0) or back (depth < 0) half of the
+    // tilted ellipse, as one or more subpaths — a simple painter's-
+    // algorithm split so the ring can pass behind the focus on one side
+    // and in front of it on the other.
+    function drawOrbitArc(body: Body, effPhase: number, front: boolean): void {
       ctx.shadowBlur = 0;
-      ctx.strokeStyle = orbitColor;
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = front ? orbitColorFront : orbitColorBack;
+      ctx.lineWidth = front ? 1.6 : 0.8;
       ctx.beginPath();
-      for (let deg = 0; deg <= 360; deg += 4) {
-        const p = positionAt(body, (deg * Math.PI) / 180);
-        if (deg === 0) ctx.moveTo(p.x, p.y);
-        else ctx.lineTo(p.x, p.y);
+      let drawing = false;
+      for (let deg = 0; deg <= 360; deg += 3) {
+        const p = positionAt3D(body, (deg * Math.PI) / 180, effPhase);
+        const isFront = p.depth >= 0;
+        if (isFront === front) {
+          const x = centerX + p.x;
+          const y = centerY + p.y;
+          if (!drawing) { ctx.moveTo(x, y); drawing = true; }
+          else ctx.lineTo(x, y);
+        } else {
+          drawing = false;
+        }
       }
-      ctx.closePath();
       ctx.stroke();
     }
 
-    function drawTrail(trail: { x: number; y: number; t: number }[], now: number): void {
+    function drawTrail(trail: { x: number; y: number; t: number }[], now: number, alphaMul: number): void {
       if (trail.length < 2) return;
       ctx.shadowBlur = 0;
       ctx.lineCap = 'round';
       for (let i = 0; i < trail.length - 1; i++) {
         const age = now - trail[i].t;
         const life = Math.max(0, 1 - age / TRAIL_MS);
-        const alpha = life ** 1.6 * 0.75; // eased falloff — fades fast near the tail
+        const alpha = life ** 1.6 * 0.85 * alphaMul; // eased falloff — fades fast near the tail
         if (alpha <= 0.01) continue;
         ctx.strokeStyle = `rgba(${accentTrailBase}, ${alpha})`;
-        ctx.lineWidth = 0.5 + life * 1.5; // tapers thin toward the tail
+        ctx.lineWidth = 0.6 + life * 1.8; // tapers thin toward the tail
         ctx.beginPath();
         ctx.moveTo(trail[i].x, trail[i].y);
         ctx.lineTo(trail[i + 1].x, trail[i + 1].y);
@@ -212,14 +253,17 @@ const quickLinks = [
       }
     }
 
-    function drawBody(x: number, y: number, radius: number): void {
-      ctx.shadowBlur = 6 + radius * 1.2;
+    function drawBody(x: number, y: number, radius: number, alphaMul: number): void {
+      const r = radius * (0.88 + alphaMul * 0.24); // nearer bodies read slightly larger
+      ctx.globalAlpha = alphaMul;
+      ctx.shadowBlur = 8 + r * 1.3;
       ctx.shadowColor = accentColor;
       ctx.fillStyle = accentColor;
       ctx.beginPath();
-      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.arc(x, y, r, 0, 2 * Math.PI);
       ctx.fill();
       ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
     }
 
     let isVisible = true;
@@ -229,22 +273,49 @@ const quickLinks = [
 
     const trails: { x: number; y: number; t: number }[][] = bodies.map(() => []);
 
+    // depth in [-1, 1] -> brightness/size multiplier in [0.55, 1]
+    function depthAlpha(depth: number): number {
+      return 0.55 + 0.45 * ((depth + 1) / 2);
+    }
+
     function renderFrame(elapsedMs: number): void {
       lastElapsedMs = elapsedMs;
       centerX += (targetCenterX - centerX) * FOCUS_EASE;
       centerY += (targetCenterY - centerY) * FOCUS_EASE;
       ctx.clearRect(0, 0, W, H);
-      drawFocus();
+
+      const elapsedSec = elapsedMs / 1000;
       const now = elapsedMs;
-      bodies.forEach((body, i) => {
-        drawOrbit(body);
-        const meanAnomaly = ((elapsedMs / 1000 / body.T) * 2 * Math.PI) % (2 * Math.PI);
-        const pos = positionAt(body, meanAnomaly);
+
+      const states = bodies.map((body, i) => {
+        const effPhase = body.phase + elapsedSec * body.precession;
+        const meanAnomaly = ((elapsedSec / body.T) * 2 * Math.PI) % (2 * Math.PI);
+        const local = positionAt3D(body, meanAnomaly, effPhase);
+        const pos = { x: centerX + local.x, y: centerY + local.y, depth: local.depth };
         const trail = trails[i];
         trail.push({ x: pos.x, y: pos.y, t: now });
         while (trail.length && now - trail[0].t > TRAIL_MS) trail.shift();
-        drawTrail(trail, now);
-        drawBody(pos.x, pos.y, body.radius);
+        return { body, effPhase, pos, trail };
+      });
+
+      // Painter's algorithm, back to front: the ring passes behind the
+      // focus on one side and in front of it on the other.
+      states.forEach(({ body, effPhase }) => drawOrbitArc(body, effPhase, false));
+      states.forEach(({ body, pos, trail }) => {
+        if (pos.depth < 0) {
+          const a = depthAlpha(pos.depth);
+          drawTrail(trail, now, a);
+          drawBody(pos.x, pos.y, body.radius, a);
+        }
+      });
+      drawFocus();
+      states.forEach(({ body, effPhase }) => drawOrbitArc(body, effPhase, true));
+      states.forEach(({ body, pos, trail }) => {
+        if (pos.depth >= 0) {
+          const a = depthAlpha(pos.depth);
+          drawTrail(trail, now, a);
+          drawBody(pos.x, pos.y, body.radius, a);
+        }
       });
     }
 
@@ -259,11 +330,18 @@ const quickLinks = [
 
     function drawStaticFrame(): void {
       ctx.clearRect(0, 0, W, H);
+      const states = bodies.map((body) => {
+        const local = positionAt3D(body, body.phase, body.phase);
+        return { body, pos: { x: centerX + local.x, y: centerY + local.y, depth: local.depth } };
+      });
+      states.forEach(({ body }) => drawOrbitArc(body, body.phase, false));
+      states.forEach(({ body, pos }) => {
+        if (pos.depth < 0) drawBody(pos.x, pos.y, body.radius, depthAlpha(pos.depth));
+      });
       drawFocus();
-      bodies.forEach((body) => {
-        drawOrbit(body);
-        const pos = positionAt(body, body.phase);
-        drawBody(pos.x, pos.y, body.radius);
+      states.forEach(({ body }) => drawOrbitArc(body, body.phase, true));
+      states.forEach(({ body, pos }) => {
+        if (pos.depth >= 0) drawBody(pos.x, pos.y, body.radius, depthAlpha(pos.depth));
       });
     }
 

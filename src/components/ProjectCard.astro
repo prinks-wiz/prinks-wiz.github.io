@@ -15,15 +15,15 @@ const { title, slug, summary, date, techStack, featured = false, stat, tags, car
 const formattedDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
 import { url } from '../utils/url';
 ---
-<article class="border-b border-edge border-l-2 py-8 group pl-4" style="border-left-color: var(--accent);">
+<article class="group rounded-sm border border-edge bg-surface-subtle p-6 md:p-8 mb-6 transition-colors hover:border-accent">
 
   <!-- Top row: taxonomy tags + GitHub link (only if one exists) -->
-  <div class="flex items-center justify-between gap-4 mb-3">
+  <div class="flex items-center justify-between gap-4 mb-4">
     {tags && tags.length > 0 ? (
       <ul class="flex flex-wrap gap-2 list-none m-0 p-0" aria-label="Project tags">
         {tags.map(tag => (
           <li>
-            <span class="font-mono text-xs text-meta border border-edge px-2 py-0.5 uppercase tracking-widest">
+            <span class="font-mono text-[11px] font-semibold text-secondary bg-surface border border-edge px-2 py-0.5 uppercase tracking-widest">
               {tag}
             </span>
           </li>
@@ -35,7 +35,7 @@ import { url } from '../utils/url';
         <a
           href={github}
           aria-label={`View ${title} on GitHub`}
-          class="transition-colors text-secondary hover:text-content"
+          class="transition-colors text-secondary hover:text-accent"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -45,7 +45,7 @@ import { url } from '../utils/url';
           </svg>
         </a>
       )}
-      <time class="font-mono text-xs text-meta shrink-0" datetime={date.toISOString()}>
+      <time class="font-mono text-xs font-semibold text-secondary shrink-0" datetime={date.toISOString()}>
         {formattedDate}
       </time>
     </div>
@@ -53,25 +53,25 @@ import { url } from '../utils/url';
 
   <a href={url(`/projects/${slug}`)} class="block" tabindex="0">
     <!-- Title -->
-    <h3 class="text-xl font-semibold text-content group-hover:text-accent transition-colors mb-1 flex items-center gap-2">
+    <h3 class="text-2xl font-bold text-content group-hover:text-accent transition-colors mb-2 flex items-center gap-2">
       {title}
-      {featured && <span class="font-mono text-xs text-accent" aria-label="Featured">★</span>}
+      {featured && <span class="font-mono text-sm text-accent" aria-label="Featured">★</span>}
     </h3>
 
     <!-- Impact stat -->
     {stat && (
-      <p class="font-mono text-sm text-secondary mb-3">{stat}</p>
+      <p class="font-mono text-sm font-semibold text-accent mb-4">{stat}</p>
     )}
 
     <!-- Description: use cardDescription if available, fall back to summary -->
-    <p class="text-sm text-secondary leading-relaxed mb-4">{cardDescription ?? summary}</p>
+    <p class="text-base text-secondary leading-relaxed mb-5">{cardDescription ?? summary}</p>
   </a>
 
   <!-- Tech stack -->
   <ul class="flex flex-wrap gap-2 list-none m-0 p-0" aria-label="Tech stack">
     {techStack.map(tech => (
       <li>
-        <span class="font-mono text-xs text-meta border border-edge px-2 py-0.5">
+        <span class="font-mono text-xs font-semibold text-secondary bg-surface border border-edge px-2 py-0.5">
           {tech}
         </span>
       </li>

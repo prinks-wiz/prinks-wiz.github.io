@@ -49,6 +49,7 @@ const writing = defineCollection({
     summary:  z.string(),
     tags:     z.array(z.string()).optional(),
     category: z.enum(['tech', 'personal']).default('tech'),
+    draft:    z.boolean().default(false), // excluded from the index and from getStaticPaths
     image:    z.string().optional(), // future: card or hero image
   }),
 });

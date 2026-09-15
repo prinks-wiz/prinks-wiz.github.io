@@ -4,7 +4,7 @@ role: "Undergraduate Researcher — Deepfake Detection"
 startDate: 2023-09-01
 endDate: 2024-04-30
 location: "Chennai, India"
-description: "Developed a deepfake detection pipeline using 2D ResNet-18, Conformer, and transformer decoders to identify audio-visual mismatches. Research selected for IEEE CADEIS 2024 from 750 submissions; received Best Paper Award (Runner-Up)."
+description: "I built a deepfake detection pipeline that catches audio-visual mismatches, combining 2D ResNet-18, a Conformer, and transformer decoders. It got selected for IEEE CADEIS 2024 out of 750 submissions, and we walked away with the Best Paper Award, runner-up."
 techStack: ["PyTorch", "ResNet-18", "Conformer", "Wav2Lip", "Transformers", "Computer Vision"]
 ---
 

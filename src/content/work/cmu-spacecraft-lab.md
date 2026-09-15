@@ -4,7 +4,7 @@ role: "Graduate Researcher"
 startDate: 2025-10-01
 endDate: null
 location: "Pittsburgh, PA"
-description: "Building an end-to-end computer vision pipeline for a NASA-class CubeSat mission. Training EfficientNet on 100K+ Sentinel-2 multispectral images, quantizing to INT8, and validating inference on NVIDIA Jetson Orin NX under strict 5W power constraints. Achieved a 672x training speedup (28 hours to 2.5 minutes) via custom GPU kernel optimizations. Named as a credited contributor on the Argus 2 mission manifest. Currently co-authoring the requirements document for Argus 3, the next mission."
+description: "I'm building the computer vision pipeline for a NASA-class CubeSat mission: fine-tuning EfficientNet on 100K+ Sentinel-2 satellite images, then quantizing it to INT8 so it runs on a Jetson Orin NX under 5W. Custom GPU kernels took training from 28 hours to 2.5 minutes, a 672x speedup I still don't fully believe. I'm a credited contributor on the Argus 2 mission manifest, and I'm co-authoring the requirements for Argus 3 now."
 techStack: ["PyTorch", "EfficientNet", "INT8 Quantization", "NVIDIA Jetson Orin", "CUDA", "Sentinel-2", "Google Earth Engine"]
 ---
 

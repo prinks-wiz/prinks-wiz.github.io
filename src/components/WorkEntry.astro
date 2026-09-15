@@ -27,28 +27,28 @@ const dateRange = `${fmt(startDate)} to ${endDate ? fmt(endDate) : 'Present'}`;
       <div>
         <h3 class="text-base font-semibold text-content">{role}</h3>
         <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
-          <span class="text-sm text-subtle">{org}</span>
+          <span class="text-sm text-secondary">{org}</span>
           {location && (
             <>
-              <span class="text-subtle" aria-hidden="true">·</span>
-              <span class="font-mono text-xs text-subtle">{location}</span>
+              <span class="text-meta" aria-hidden="true">·</span>
+              <span class="font-mono text-xs text-meta">{location}</span>
             </>
           )}
         </div>
       </div>
     </div>
-    <time class="font-mono text-xs text-subtle shrink-0 mt-0.5 text-right">
+    <time class="font-mono text-xs text-meta shrink-0 mt-0.5 text-right">
       {dateRange}
     </time>
   </div>
 
-  <p class="text-sm text-subtle leading-relaxed mb-4 pl-14">{description}</p>
+  <p class="text-sm text-secondary leading-relaxed mb-4 pl-14">{description}</p>
 
   {techStack && techStack.length > 0 && (
     <ul class="flex flex-wrap gap-2 list-none m-0 p-0 pl-14" aria-label="Tech stack">
       {techStack.map(tech => (
         <li>
-          <span class="font-mono text-xs text-subtle border border-edge px-2 py-0.5">
+          <span class="font-mono text-xs text-meta border border-edge px-2 py-0.5">
             {tech}
           </span>
         </li>

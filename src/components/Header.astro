@@ -1,124 +1,81 @@
 ---
-import CoordinateDisplay from './CoordinateDisplay.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { url } from '../utils/url';
 
 const navLinks = [
-  { href: url('/work'),     label: 'Work'     },
-  { href: url('/projects'), label: 'Projects' },
-  { href: url('/writing'),  label: 'Writing'  },
-  { href: url('/about'),    label: 'About'    },
+  { num: '01', href: url('/work'), label: 'Work' },
+  { num: '02', href: url('/projects'), label: 'Projects' },
+  { num: '03', href: url('/writing'), label: 'Writing' },
+  { num: '04', href: url('/about'), label: 'About' },
+  { num: '05', href: url('/contact'), label: 'Contact' },
 ];
 
 const path = Astro.url.pathname;
 ---
-<header class="border-b border-edge">
-  <div class="max-w-[720px] mx-auto px-6 py-4">
 
-    <!-- Single-row on md+; stacked on mobile -->
-    <div class="flex items-center justify-between gap-4">
+<header class="border-b border-edge sticky top-0 z-40 bg-surface">
+  <div class="max-w-[1200px] mx-auto px-6 py-4 md:py-5">
+    <div class="flex items-center justify-between gap-8">
+      <!-- Logo / Home -->
+      <a
+        href={url('/')}
+        class="font-mono text-sm font-bold text-content hover:text-accent transition-colors shrink-0"
+      >
+        PV
+      </a>
 
-      <div class="flex items-center gap-8">
-        <!-- Home / identity mark -->
-        <a
-          href={url('/')}
-          class="font-mono text-sm font-medium text-content hover:text-accent transition-colors"
-          aria-label="Home"
-        >
-          P.V.
-        </a>
-
-        <!-- Primary nav — hidden on small screens, shown on sm+ -->
-        <nav aria-label="Main navigation" class="hidden sm:block">
-          <ul class="flex items-center gap-5 list-none m-0 p-0">
-            {navLinks.map(link => (
-              <li>
-                <a
-                  href={link.href}
-                  class:list={[
-                    'text-sm transition-colors',
-                  path.startsWith(link.href)
-                      ? 'text-accent font-medium'
-                      : 'text-navLink hover:text-content',
-                  ]}
-                  aria-current={path.startsWith(link.href) ? 'page' : undefined}
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
-
-      <!-- Right cluster -->
-      <div class="flex items-center gap-4">
-        <div class="hidden md:block">
-          <CoordinateDisplay />
-        </div>
-        <!-- Contact icon strip — desktop only -->
-        <div class="hidden md:flex items-center gap-3">
+      <!-- Primary nav — hidden on mobile -->
+      <nav
+        aria-label="Main navigation"
+        class="hidden sm:flex items-center gap-6 md:gap-8"
+      >
+        {navLinks.map((link) => (
           <a
-            href="https://github.com/prinks-wiz"
-            aria-label="GitHub"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-subtle hover:text-content transition-colors"
+            href={link.href}
+            class={`font-mono text-xs uppercase tracking-[0.1em] transition-colors ${
+              path === link.href || path.startsWith(link.href)
+                ? 'text-content underline underline-offset-4 decoration-accent decoration-1'
+                : 'text-meta hover:text-content'
+            }`}
+            aria-current={
+              path === link.href || path.startsWith(link.href)
+                ? 'page'
+                : undefined
+            }
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S9 17.44 9 18v4"/>
-              <path d="M9 18c-4.51 2-5-2-7-2"/>
-            </svg>
+            {link.num} / {link.label}
           </a>
-          <a
-            href="https://www.linkedin.com/in/priyankavijaybaskar"
-            aria-label="LinkedIn"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-subtle hover:text-content transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-              <rect width="4" height="12" x="2" y="9"/>
-              <circle cx="4" cy="4" r="2"/>
-            </svg>
-          </a>
-          <a
-            href="mailto:pvijayba@andrew.cmu.edu"
-            aria-label="Email"
-            class="text-subtle hover:text-content transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect width="20" height="16" x="2" y="4" rx="2"/>
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-            </svg>
-          </a>
-        </div>
-        <ThemeToggle />
-      </div>
+        ))}
+      </nav>
+
+      <!-- Theme toggle -->
+      <ThemeToggle />
     </div>
 
-    <!-- Mobile nav — shown only on small screens -->
-    <nav aria-label="Mobile navigation" class="sm:hidden pt-3 border-t border-edge mt-3">
-      <ul class="flex items-center gap-4 list-none m-0 p-0">
-        {navLinks.map(link => (
-          <li>
-            <a
-              href={link.href}
-              class:list={[
-                'text-sm transition-colors',
-                path.startsWith(link.href)
-                   ? 'text-accent font-medium'
-                   : 'text-navLink hover:text-content',
-              ]}
-              aria-current={path.startsWith(link.href) ? 'page' : undefined}
-            >
-              {link.label}
-            </a>
-          </li>
+    <!-- Mobile nav -->
+    <nav
+      aria-label="Mobile navigation"
+      class="sm:hidden pt-3 border-t border-edge mt-3 -mx-6 px-6"
+    >
+      <div class="flex flex-wrap gap-3">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class={`font-mono text-xs uppercase tracking-[0.1em] transition-colors ${
+              path === link.href || path.startsWith(link.href)
+                ? 'text-content underline underline-offset-4 decoration-accent decoration-1'
+                : 'text-meta hover:text-content'
+            }`}
+            aria-current={
+              path === link.href || path.startsWith(link.href)
+                ? 'page'
+                : undefined
+            }
+          >
+            {link.num}
+          </a>
         ))}
-      </ul>
+      </div>
     </nav>
-
   </div>
 </header>

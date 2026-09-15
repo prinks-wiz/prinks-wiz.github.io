@@ -1,0 +1,307 @@
+---
+// Three-body Keplerian orbit animation. Canvas-based, 60-70vh, centered
+// below the hero line. Each body follows its own true-Keplerian ellipse
+// (independent orbits, not mutual gravity) so speed visibly varies with
+// true anomaly — fast at periapsis, slow at apoapsis.
+//
+// Two independent effects run on the canvas:
+//   1. The orbit simulation itself — runs on its own rAF clock, paused
+//      via IntersectionObserver when off-screen.
+//   2. A scroll-driven parallax/tilt on the canvas element — reads scroll
+//      position on a separate rAF-throttled listener and applies a CSS
+//      transform. It never touches the simulation's clock or state.
+// Canvas sizing reads `offsetWidth`/`offsetHeight` rather than
+// `getBoundingClientRect`, because the latter reflects the *transformed*
+// (tilted) box and would feed back into the simulation's scale.
+---
+<section
+  id="orbital-animation-section"
+  class="w-full flex items-center justify-center min-h-[60vh] md:min-h-[70vh] py-4"
+  style="perspective: 1200px;"
+>
+  <canvas
+    id="orbital-canvas"
+    class="w-full max-w-2xl h-full"
+    style="display: block; aspect-ratio: 1 / 1; will-change: transform;"
+    role="img"
+    aria-label="Ambient animation of three bodies tracing elliptical orbits"
+  ></canvas>
+</section>
+
+<script>
+  interface Body {
+    a: number;     // semi-major axis, as a fraction of the canvas half-size
+    e: number;     // eccentricity
+    T: number;     // period, seconds
+    phase: number; // initial phase, radians
+    radius: number; // dot radius, px — a mild depth cue between bodies
+  }
+
+  const bodies: Body[] = [
+    { a: 0.20, e: 0.15, T: 21, phase: 0, radius: 4 },
+    { a: 0.34, e: 0.35, T: 26, phase: (2 * Math.PI) / 3, radius: 5 },
+    { a: 0.46, e: 0.5, T: 30, phase: (4 * Math.PI) / 3, radius: 6 },
+  ];
+
+  const TRAIL_MS = 2000; // ~2s fading trail, independent of frame rate
+
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let prefersReduced = motionQuery.matches;
+
+  const section = document.getElementById('orbital-animation-section');
+  const canvas = document.getElementById('orbital-canvas') as HTMLCanvasElement | null;
+  const ctx = canvas?.getContext('2d') ?? null;
+
+  if (section && canvas && ctx) {
+    let W = 0, H = 0, centerX = 0, centerY = 0, R = 0;
+    let orbitColor = 'rgba(158, 158, 158, 0.25)';
+    let accentColor = '#1F4FD8';
+    let accentTrailBase = '31, 79, 216'; // r,g,b for the accent, used with alpha
+
+    function hexToRgbTriplet(hex: string): string {
+      const m = hex.trim().match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+      if (!m) return '31, 79, 216';
+      const [r, g, b] = m.slice(1).map((h) => parseInt(h, 16));
+      return `${r}, ${g}, ${b}`;
+    }
+
+    function readColors(): void {
+      const styles = getComputedStyle(document.documentElement);
+      const border = styles.getPropertyValue('--border').trim() || '#DEDEDA';
+      accentColor = styles.getPropertyValue('--accent').trim() || '#1F4FD8';
+      accentTrailBase = hexToRgbTriplet(accentColor);
+      const rgb = hexToRgbTriplet(border);
+      orbitColor = `rgba(${rgb}, 0.25)`;
+    }
+
+    // offsetWidth/offsetHeight are layout dimensions — untouched by the
+    // scroll-driven CSS transform below, unlike getBoundingClientRect.
+    function resize(): void {
+      const cssW = canvas.offsetWidth;
+      const cssH = canvas.offsetHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = cssW * dpr;
+      canvas.height = cssH * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      W = cssW;
+      H = cssH;
+      centerX = W / 2;
+      centerY = H / 2;
+      R = Math.min(W, H) / 2;
+      trails.forEach((t) => (t.length = 0));
+    }
+
+    function trueAnomaly(E: number, e: number): number {
+      return 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
+    }
+
+    function solveKepler(M: number, e: number): number {
+      let E = M;
+      for (let i = 0; i < 5; i++) E = M + e * Math.sin(E);
+      return E;
+    }
+
+    function positionAt(body: Body, meanAnomaly: number): { x: number; y: number } {
+      const E = solveKepler(meanAnomaly, body.e);
+      const nu = trueAnomaly(E, body.e);
+      const a = body.a * R;
+      const r = (a * (1 - body.e ** 2)) / (1 + body.e * Math.cos(nu));
+      return {
+        x: centerX + r * Math.cos(nu + body.phase),
+        y: centerY + r * Math.sin(nu + body.phase),
+      };
+    }
+
+    function drawFocus(): void {
+      const glowR = R * 0.4;
+      const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, glowR);
+      gradient.addColorStop(0, `rgba(${accentTrailBase}, 0.10)`);
+      gradient.addColorStop(1, `rgba(${accentTrailBase}, 0)`);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(centerX - glowR, centerY - glowR, glowR * 2, glowR * 2);
+    }
+
+    function drawOrbit(body: Body): void {
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = orbitColor;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let deg = 0; deg <= 360; deg += 4) {
+        const p = positionAt(body, (deg * Math.PI) / 180);
+        if (deg === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+
+    function drawTrail(trail: { x: number; y: number; t: number }[], now: number): void {
+      if (trail.length < 2) return;
+      ctx.shadowBlur = 0;
+      ctx.lineCap = 'round';
+      for (let i = 0; i < trail.length - 1; i++) {
+        const age = now - trail[i].t;
+        const life = Math.max(0, 1 - age / TRAIL_MS);
+        const alpha = life ** 1.6 * 0.75; // eased falloff — fades fast near the tail
+        if (alpha <= 0.01) continue;
+        ctx.strokeStyle = `rgba(${accentTrailBase}, ${alpha})`;
+        ctx.lineWidth = 0.5 + life * 1.5; // tapers thin toward the tail
+        ctx.beginPath();
+        ctx.moveTo(trail[i].x, trail[i].y);
+        ctx.lineTo(trail[i + 1].x, trail[i + 1].y);
+        ctx.stroke();
+      }
+    }
+
+    function drawBody(x: number, y: number, radius: number): void {
+      ctx.shadowBlur = radius * 2.5;
+      ctx.shadowColor = accentColor;
+      ctx.fillStyle = accentColor;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    let isVisible = true;
+    let animId = 0;
+    let startTime = performance.now();
+    let lastElapsedMs = 0;
+
+    const trails: { x: number; y: number; t: number }[][] = bodies.map(() => []);
+
+    function renderFrame(elapsedMs: number): void {
+      lastElapsedMs = elapsedMs;
+      ctx.clearRect(0, 0, W, H);
+      drawFocus();
+      const now = elapsedMs;
+      bodies.forEach((body, i) => {
+        drawOrbit(body);
+        const meanAnomaly = ((elapsedMs / 1000 / body.T) * 2 * Math.PI) % (2 * Math.PI);
+        const pos = positionAt(body, meanAnomaly);
+        const trail = trails[i];
+        trail.push({ x: pos.x, y: pos.y, t: now });
+        while (trail.length && now - trail[0].t > TRAIL_MS) trail.shift();
+        drawTrail(trail, now);
+        drawBody(pos.x, pos.y, body.radius);
+      });
+    }
+
+    function animate(time: number): void {
+      if (!isVisible) {
+        animId = 0;
+        return;
+      }
+      renderFrame(time - startTime);
+      animId = requestAnimationFrame(animate);
+    }
+
+    function drawStaticFrame(): void {
+      ctx.clearRect(0, 0, W, H);
+      drawFocus();
+      bodies.forEach((body) => {
+        drawOrbit(body);
+        const pos = positionAt(body, body.phase);
+        drawBody(pos.x, pos.y, body.radius);
+      });
+    }
+
+    function start(): void {
+      readColors();
+      resize();
+      if (prefersReduced) {
+        drawStaticFrame();
+        return;
+      }
+      startTime = performance.now();
+      if (!animId) animId = requestAnimationFrame(animate);
+    }
+
+    start();
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible && !prefersReduced && !animId) {
+          startTime = performance.now() - lastElapsedMs;
+          trails.forEach((t) => (t.length = 0));
+          animId = requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(canvas);
+
+    document.addEventListener('themechange', () => {
+      readColors();
+      if (prefersReduced) drawStaticFrame();
+    });
+
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        resize();
+        if (prefersReduced) drawStaticFrame();
+        updateTilt();
+      }, 150);
+    });
+
+    // ── Scroll parallax + tilt ──────────────────────────────────────────
+    // Fully independent of the simulation above: reads the section's own
+    // (untransformed) bounding box, derives how far it sits from the
+    // viewport's vertical center, and applies that as a small translate +
+    // rotateX + scale on the canvas. The orbit simulation keeps running on
+    // its own clock throughout — scroll only perturbs the "camera".
+    function updateTilt(): void {
+      if (prefersReduced) {
+        canvas.style.transform = '';
+        return;
+      }
+      const rect = section.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const sectionCenter = rect.top + rect.height / 2;
+      const raw = (sectionCenter - vh / 2) / vh;
+      const progress = Math.max(-1, Math.min(1, raw));
+
+      const translateY = progress * -28; // px drift, opposite the scroll direction
+      const tiltDeg = progress * 7;
+      const scale = 1 - Math.abs(progress) * 0.035;
+
+      canvas.style.transform =
+        `translateY(${translateY.toFixed(2)}px) scale(${scale.toFixed(3)}) rotateX(${tiltDeg.toFixed(2)}deg)`;
+    }
+
+    if (!prefersReduced) {
+      let ticking = false;
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => {
+            updateTilt();
+            ticking = false;
+          });
+        },
+        { passive: true }
+      );
+      updateTilt();
+    }
+
+    motionQuery.addEventListener('change', (e) => {
+      prefersReduced = e.matches;
+      if (prefersReduced) {
+        canvas.style.transform = '';
+        if (animId) {
+          cancelAnimationFrame(animId);
+          animId = 0;
+        }
+        drawStaticFrame();
+      } else {
+        start();
+        updateTilt();
+      }
+    });
+  }
+</script>

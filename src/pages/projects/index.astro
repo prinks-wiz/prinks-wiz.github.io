@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import SectionHero from '../../components/SectionHero.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { getCollection } from 'astro:content';
 
@@ -14,16 +14,20 @@ const sorted = all.sort((a, b) => {
 });
 ---
 <BaseLayout
-  title="Projects — Portfolio"
-  description="ML, robotics, and systems engineering projects."
+  title="Projects — Priyanka Vijaybaskar"
+  description="Vision, generalization, and edge deployment projects."
 >
   <div class="max-w-[720px] mx-auto px-6 py-16">
 
-    <SectionHero
-      section="projects"
-      title="Projects"
-      description="Work that pushed my thinking forward. Building systems at the edge of what's possible: vision on limited hardware, model optimization, end-to-end deployment."
-    />
+    <SectionHeader number="02" title="PROJECTS" />
+
+    <h1 class="text-2xl font-semibold text-content tracking-tight mb-4">
+      Projects
+    </h1>
+    <p class="text-secondary leading-relaxed mb-12 max-w-[36rem]">
+      Independent and coursework projects, kept here because they show the same
+      pattern as the work above: a model that has to hold up outside the training set.
+    </p>
 
     {sorted.map(project => (
       <ProjectCard
@@ -34,7 +38,7 @@ const sorted = all.sort((a, b) => {
         techStack={project.data.techStack}
         featured={project.data.featured}
         stat={project.data.stat}
-        domainTag={project.data.domainTag}
+        tags={project.data.tags}
         cardDescription={project.data.cardDescription}
         github={project.data.links?.github}
       />

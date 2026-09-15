@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SectionHero from '../components/SectionHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
 import { url } from '../utils/url';
 ---
 <BaseLayout
@@ -9,16 +9,12 @@ import { url } from '../utils/url';
 >
   <div class="max-w-[720px] mx-auto px-6 py-16">
 
-    <SectionHero
-      section="about"
-      title="About"
-      description="Building things that work under pressure. Spacecraft, robots, models at the edge — systems that fail in clear ways."
-    />
+    <SectionHeader number="04" title="ABOUT" />
 
     <!-- ── Identity block: photo + name ────────────────────────────────── -->
     <div class="flex items-start gap-6 mb-12">
       <img
-        src="/Website_Profile.jpeg"
+        src={url('/Website_Profile.jpeg')}
         alt="Priyanka Vijaybaskar"
         width="96"
         height="96"
@@ -30,7 +26,7 @@ import { url } from '../utils/url';
         <h1 class="text-2xl font-semibold text-content tracking-tight mb-1">
           Priyanka Vijaybaskar
         </h1>
-        <p class="font-mono text-xs text-subtle uppercase tracking-[0.12em]">
+        <p class="font-mono text-xs text-meta uppercase tracking-[0.12em]">
           MCDS @ Carnegie Mellon · Edge ML · Spacecraft Lab
         </p>
       </div>
@@ -40,19 +36,21 @@ import { url } from '../utils/url';
     <section aria-labelledby="background-heading" class="mb-12">
       <h2
         id="background-heading"
-        class="font-mono text-xs text-subtle uppercase tracking-[0.15em] mb-5"
+        class="font-mono text-xs text-meta uppercase tracking-[0.15em] mb-5"
       >
         Background
       </h2>
-      <div class="space-y-4 text-subtle leading-relaxed text-sm">
+      <div class="space-y-4 text-secondary leading-relaxed text-sm">
         <p>
           I am an MCDS student at Carnegie Mellon working at the intersection of machine
-          learning and physical systems. My current research is at the CMU Spacecraft Lab,
-          where I am building the computer vision pipeline for the Argus mission — helping a
-          satellite figure out where it is from what its camera sees. I am also building an
-          open-source toolkit for deploying vision-language models on edge hardware via ONNX
-          and TensorRT, because the export pipeline has a talent for breaking in interesting
-          ways and nobody has fixed it properly yet.
+          learning and physical systems. My current work is at the CMU Spacecraft Lab, where
+          I am building the computer vision pipeline for a NASA-class CubeSat mission:
+          EfficientNet fine-tuned on Sentinel-2 multispectral imagery, quantized to INT8,
+          validated on a Jetson Orin NX under 5W. I also hold a credit on the Argus 2 mission
+          manifest and am co-authoring the mission definition for Argus 3. Alongside the lab,
+          I am building an open-source toolkit for deploying vision-language models on edge
+          hardware via ONNX and TensorRT, because the .pt to ONNX to TRT pipeline has a
+          talent for breaking in interesting ways and nobody has fixed it properly yet.
         </p>
         <p>
           What draws me to this space is the constraint. A cloud model can be re-evaluated,
@@ -62,9 +60,6 @@ import { url } from '../utils/url';
           to spend my career. I am particularly interested in perception roles at companies
           where the physical environment is the test: robotics, aerospace, edge AI. I am
           graduating in December 2026 and am open to full-time roles starting early 2027.
-        </p>
-        <p>
-          I also read poetry.
         </p>
       </div>
     </section>
@@ -76,16 +71,13 @@ import { url } from '../utils/url';
     >
       <h2
         id="cv-heading"
-        class="font-mono text-xs text-subtle uppercase tracking-[0.15em] mb-5"
+        class="font-mono text-xs text-meta uppercase tracking-[0.15em] mb-5"
       >
         Résumé
       </h2>
       <a
         href={url('/resume.pdf')}
-        class="inline-block font-mono text-sm px-4 py-2 border transition-colors hover:text-white"
-        style="color: var(--accent); border-color: var(--accent);"
-        onmouseover="this.style.backgroundColor='var(--accent)'"
-        onmouseout="this.style.backgroundColor='transparent'"
+        class="inline-block font-mono text-sm px-4 py-2 border border-accent text-accent transition-colors hover:bg-accent hover:text-white"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -100,7 +92,7 @@ import { url } from '../utils/url';
     >
       <h2
         id="contact-heading"
-        class="font-mono text-xs text-subtle uppercase tracking-[0.15em] mb-5"
+        class="font-mono text-xs text-meta uppercase tracking-[0.15em] mb-5"
       >
         Contact
       </h2>
@@ -133,7 +125,7 @@ import { url } from '../utils/url';
         </li>
         <li>
           <a
-            href="https://www.linkedin.com/in/priyankavijaybaskar"
+            href="https://linkedin.com/in/priyanka-179947216"
             class="flex items-center gap-2 font-mono text-sm text-accent hover:underline"
             target="_blank"
             rel="noopener noreferrer"
@@ -143,7 +135,7 @@ import { url } from '../utils/url';
               <rect width="4" height="12" x="2" y="9"/>
               <circle cx="4" cy="4" r="2"/>
             </svg>
-            linkedin.com/in/priyankavijaybaskar
+            linkedin.com/in/priyanka-179947216
           </a>
         </li>
       </ul>

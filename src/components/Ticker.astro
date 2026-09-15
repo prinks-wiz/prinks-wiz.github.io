@@ -1,0 +1,64 @@
+---
+// Ticker: marquee of tech keywords
+// Monospace, meta tone, uppercase, ~40s loop, pauses on hover
+// Static list under prefers-reduced-motion
+const keywords = [
+  'AWS', 'GCP', 'ViT', 'TRANSFORMERS', 'MULTI-SENSOR FUSION',
+  'STATE ESTIMATION', 'EDGE DEPLOYMENT', 'JETSON', 'RTOS', 'PYTORCH',
+  'SOFTWARE ENGINEERING', 'DINOv2', 'GEOSPATIAL DATA', 'ORBIT DETERMINATION', 'F´'
+];
+const tickerContent = keywords.join(' · ');
+---
+<section
+  class="w-full bg-surface-subtle border-t border-b border-edge"
+  style="font-family: 'JetBrains Mono', monospace;"
+>
+  <!-- Detect reduced motion -->
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .ticker-scroll { animation: none !important; }
+      .ticker-content { overflow: visible; white-space: normal; }
+    }
+  </style>
+
+  <div class="overflow-hidden py-3 md:py-4">
+    <!-- Mobile: static wrapped list -->
+    <div class="md:hidden px-6">
+      <p class="text-xs text-meta uppercase tracking-[0.1em] whitespace-normal">
+        {tickerContent}
+      </p>
+    </div>
+
+    <!-- Desktop: scrolling marquee -->
+    <div class="hidden md:block">
+      <div
+        class="ticker-scroll"
+        style="
+          display: flex;
+          animation: scroll 40s linear infinite;
+          will-change: transform;
+        "
+        onmouseover="this.style.animationPlayState = 'paused'"
+        onmouseout="this.style.animationPlayState = 'running'"
+      >
+        {[...Array(3)].map(() => (
+          <div class="ticker-content shrink-0 flex items-center gap-3">
+            {keywords.map((kw, i) => (
+              <span key={i} class="text-xs text-meta uppercase tracking-[0.1em]">
+                {i > 0 && <span class="mx-1">·</span>}
+                {kw}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(calc(-33.333% - 1rem)); }
+    }
+  </style>
+</section>

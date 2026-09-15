@@ -8,12 +8,13 @@ export default {
       // Dark-mode switching works by swapping the variable values, not by
       // using Tailwind dark: variants, so every color automatically adapts.
       colors: {
-        surface:  'var(--bg)',
-        content:  'var(--text)',
-        subtle:   'var(--text-muted)',
-        edge:     'var(--border)',
-        accent:   'var(--accent)',
-        navLink:  'var(--nav-link)',
+        surface:         'var(--bg)',
+        'surface-subtle': 'var(--bg-subtle)',
+        content:         'var(--text-primary)',
+        secondary:       'var(--text-secondary)',
+        meta:            'var(--text-meta)',
+        edge:            'var(--border)',
+        accent:          'var(--accent)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

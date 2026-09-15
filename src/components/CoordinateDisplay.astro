@@ -1,46 +1,10 @@
 ---
-// Default: Pittsburgh, PA. Overwritten client-side via Geolocation API.
+// Static coordinates widget, bottom-right. Not geolocated — this is the
+// author's location, presented as a fixed piece of furniture on the page.
 ---
-<!--
-  CoordinateDisplay: shows the visitor's actual GPS coordinates.
-  Falls back to Pittsburgh (40.4406, -79.9959) if permission denied or unavailable.
-  Two-line layout aligns LAT / LON labels and values in a fixed grid.
--->
-<span
-  id="coord-display"
-  class="font-mono text-xs text-subtle"
-  style="font-variant-numeric: tabular-nums; letter-spacing: 0.06em; line-height: 1.5;"
-  aria-live="polite"
-  aria-label="Visitor location coordinates"
+<div
+  class="fixed bottom-4 right-4 font-mono text-[11px] text-meta uppercase tracking-[0.08em] pointer-events-none"
+  style="z-index: 10;"
 >
-  <span class="flex flex-col">
-    <span><span class="inline-block w-8">LAT</span> <span id="coord-lat">40.4406</span></span>
-    <span><span class="inline-block w-8">LON</span> <span id="coord-lon">-79.9959</span></span>
-  </span>
-</span>
-
-<script>
-  const latEl = document.getElementById('coord-lat');
-  const lonEl = document.getElementById('coord-lon');
-
-  if (latEl && lonEl && 'geolocation' in navigator) {
-    const cached = sessionStorage.getItem('coords');
-    if (cached) {
-      const { lat, lon } = JSON.parse(cached);
-      latEl.textContent = lat;
-      lonEl.textContent = lon;
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude.toFixed(4);
-          const lon = pos.coords.longitude.toFixed(4);
-          latEl.textContent = lat;
-          lonEl.textContent = lon;
-          try { sessionStorage.setItem('coords', JSON.stringify({ lat, lon })); } catch (_) {}
-        },
-        () => { /* permission denied — keep Pittsburgh default */ },
-        { timeout: 5000, maximumAge: 300_000 }
-      );
-    }
-  }
-</script>
+  <p class="m-0">PITTSBURGH, PA · 40.4406°N, 79.9959°W</p>
+</div>

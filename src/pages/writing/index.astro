@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import SectionHero from '../../components/SectionHero.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
 import { getCollection } from 'astro:content';
 import { url } from '../../utils/url';
 
@@ -8,120 +8,48 @@ const posts = await getCollection('writing');
 const sorted = posts.sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
-
-const techPosts     = sorted.filter(p => p.data.category === 'tech');
-const personalPosts = sorted.filter(p => p.data.category === 'personal');
-
-const fmt = (d: Date) =>
-  d.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
 ---
 <BaseLayout
   title="Writing — Priyanka Vijaybaskar"
-  description="Technical essays on ML, robotics, and systems — plus a personal corner."
+  description="Technical writing on ML, robotics, and systems engineering."
 >
   <div class="max-w-[720px] mx-auto px-6 py-16">
 
-    <SectionHero
-      section="writing"
-      title="Writing"
-      description="Technical essays on ML, systems, and robotics. And a personal corner for thoughts that didn't fit anywhere else."
-    />
+    <SectionHeader number="03" title="WRITING" />
 
-    <!-- ── Technical writing ─────────────────────────────────────────── -->
-    <section aria-labelledby="tech-heading" class="mb-20">
-      <div class="flex items-center gap-3 mb-8">
-        <span class="font-mono text-xs tracking-widest text-subtle uppercase">Technical</span>
-        <span class="flex-1 border-t border-edge"></span>
-        <span class="font-mono text-xs text-subtle opacity-50">{techPosts.length}</span>
-      </div>
+    <h1 class="text-2xl font-semibold text-content mb-12 tracking-tight">
+      Writing
+    </h1>
 
-      <ul class="list-none m-0 p-0 space-y-0">
-        {techPosts.map(post => (
-          <li class="group border-b border-edge py-5 first:border-t first:border-edge">
-            <article>
-              <a href={url(`/writing/${post.slug}`)} class="flex items-start justify-between gap-4">
-                <div class="flex-1 min-w-0">
-                  <h2 class="text-sm font-medium text-content group-hover:text-accent transition-colors mb-1.5 leading-snug">
+    <ul class="list-none m-0 p-0">
+      {sorted.map(post => (
+        <li class="border-b border-edge py-6">
+          <article>
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1 min-w-0">
+                <a href={url(`/writing/${post.slug}`)} class="group block">
+                  <h2 class="text-base font-medium text-content group-hover:text-accent transition-colors mb-2">
                     {post.data.title}
                   </h2>
-                  <p class="text-xs text-subtle leading-relaxed line-clamp-2">
-                    {post.data.summary}
-                  </p>
-                  {post.data.tags && post.data.tags.length > 0 && (
-                    <ul class="flex flex-wrap gap-1.5 list-none m-0 p-0 mt-2.5" aria-label="Tags">
-                      {post.data.tags.map(tag => (
-                        <li>
-                          <span class="font-mono text-[10px] text-subtle border border-edge px-1.5 py-0.5 leading-none">
-                            {tag}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                <time
-                  class="font-mono text-xs text-subtle shrink-0 mt-0.5 tabular-nums"
-                  datetime={post.data.date.toISOString()}
-                >
-                  {fmt(post.data.date)}
-                </time>
-              </a>
-            </article>
-          </li>
-        ))}
-      </ul>
-    </section>
-
-    <!-- ── My Corner ──────────────────────────────────────────────────── -->
-    <section aria-labelledby="corner-heading">
-
-      <!-- Section label with a different character -->
-      <div class="flex items-center gap-3 mb-2">
-        <span class="font-mono text-xs tracking-widest text-subtle uppercase">My Corner</span>
-        <span class="flex-1 border-t border-dashed border-edge"></span>
-        <span class="font-mono text-xs" style="color: var(--accent); opacity: 0.7;">✦</span>
-      </div>
-
-      <!-- Handwritten-feel descriptor line -->
-      <p class="font-mono text-[11px] text-subtle mb-8 italic opacity-70">
-        not technical · probably unfinished · entirely honest
-      </p>
-
-      {personalPosts.length === 0 ? (
-        <div class="border border-dashed border-edge px-6 py-8 text-center">
-          <p class="font-mono text-xs text-subtle opacity-60">nothing here yet.</p>
-        </div>
-      ) : (
-        <ul class="list-none m-0 p-0">
-          {personalPosts.map(post => (
-            <li class="mb-4 last:mb-0">
-              <article
-                class="border border-dashed border-edge px-5 py-5 group transition-colors hover:border-accent"
-                style="border-radius: 1px;"
-              >
-                <a href={url(`/writing/${post.slug}`)} class="block">
-                  <div class="flex items-start justify-between gap-4">
-                    <h2 class="text-sm font-medium text-content group-hover:text-accent transition-colors leading-snug flex-1">
-                      {post.data.title}
-                    </h2>
-                    <time
-                      class="font-mono text-xs text-subtle shrink-0 mt-0.5 tabular-nums"
-                      datetime={post.data.date.toISOString()}
-                    >
-                      {fmt(post.data.date)}
-                    </time>
-                  </div>
-                  <p class="text-xs text-subtle leading-relaxed mt-2 italic">
-                    {post.data.summary}
-                  </p>
                 </a>
-              </article>
-            </li>
-          ))}
-        </ul>
-      )}
-
-    </section>
+                <p class="text-sm text-secondary leading-relaxed">
+                  {post.data.summary}
+                </p>
+              </div>
+              <time
+                class="font-mono text-xs text-meta shrink-0 mt-0.5"
+                datetime={post.data.date.toISOString()}
+              >
+                {post.data.date.toLocaleDateString('en-US', {
+                  year:  'numeric',
+                  month: 'short',
+                })}
+              </time>
+            </div>
+          </article>
+        </li>
+      ))}
+    </ul>
 
   </div>
 </BaseLayout>

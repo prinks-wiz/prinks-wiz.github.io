@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+---
+
+<BaseLayout title="Contact — Priyanka Vijaybaskar" description="Contact details and social links.">
+  <div class="max-w-[720px] mx-auto px-6 py-16">
+    <SectionHeader number="05" title="CONTACT" />
+
+    <h1 class="text-2xl font-semibold text-content tracking-tight mb-8">
+      Contact
+    </h1>
+
+    <div class="space-y-4 text-secondary leading-relaxed text-sm max-w-[36rem]">
+      <p>For roles, collaborations, or research work, email is the fastest path.</p>
+      <p>Based in Pittsburgh and open to work starting in 2027.</p>
+    </div>
+
+    <section class="mt-10 border-t border-edge pt-8">
+      <ul class="space-y-3 list-none m-0 p-0">
+        <li>
+          <a class="font-mono text-sm text-accent hover:underline" href="mailto:pvijayba@andrew.cmu.edu">
+            pvijayba@andrew.cmu.edu
+          </a>
+        </li>
+        <li>
+          <a class="font-mono text-sm text-accent hover:underline" href="https://github.com/prinks-wiz" target="_blank" rel="noopener noreferrer">
+            github.com/prinks-wiz
+          </a>
+        </li>
+        <li>
+          <a class="font-mono text-sm text-accent hover:underline" href="https://linkedin.com/in/priyanka-179947216" target="_blank" rel="noopener noreferrer">
+            linkedin.com/in/priyanka-179947216
+          </a>
+        </li>
+      </ul>
+    </section>
+  </div>
+</BaseLayout>

@@ -19,7 +19,20 @@ const projects = defineCollection({
     thumbnail:       z.string().optional(),
     featured:        z.boolean().default(false),
     stat:            z.string().optional(), // one-line impact metric for card display
-    domainTag:       z.string().optional(), // e.g. "VISION / NLP"
+    // Shared taxonomy across every project card — keep this list closed.
+    tags: z
+      .array(
+        z.enum([
+          'VISION',
+          'GENERALIZATION',
+          'EDGE DEPLOYMENT',
+          'STATE ESTIMATION',
+          'EVALUATION',
+          'MULTIMODAL',
+          'INFRASTRUCTURE',
+        ])
+      )
+      .optional(),
     cardDescription: z.string().optional(), // longer recruiter-facing copy; overrides summary on card
     image:           z.string().optional(), // future: hero image path
     imageDark:       z.string().optional(), // future: dark mode image variant

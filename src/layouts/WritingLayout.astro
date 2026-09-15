@@ -8,8 +8,7 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, summary, date, tags, category } = entry.data;
-const isPersonal = category === 'personal';
+const { title, summary, date, tags } = entry.data;
 
 const fmt = (d: Date) =>
   d.toLocaleDateString('en-US', {
@@ -21,40 +20,34 @@ const fmt = (d: Date) =>
 <BaseLayout title={`${title} — Writing`} description={summary}>
   <div class="max-w-[720px] mx-auto px-6 py-16">
 
-    <nav aria-label="Breadcrumb" class="mb-10 flex items-center gap-2">
+    <nav aria-label="Breadcrumb" class="mb-10">
       <a
         href={url('/writing')}
-        class="font-mono text-xs text-subtle hover:text-accent transition-colors"
+        class="font-mono text-xs text-meta hover:text-content transition-colors"
       >
         ← Writing
       </a>
-      {isPersonal && (
-        <>
-          <span class="font-mono text-xs text-subtle opacity-40">/</span>
-          <span class="font-mono text-xs" style="color: var(--accent); opacity: 0.7;">✦ my corner</span>
-        </>
-      )}
     </nav>
 
-    <header class="mb-12 pb-8" class:list={[isPersonal ? 'border-b border-dashed border-edge' : 'border-b border-edge']}>
+    <header class="mb-12 border-b border-edge pb-8">
       <time
-        class="font-mono text-xs text-subtle block mb-3"
+        class="font-mono text-xs text-meta block mb-3"
         datetime={date.toISOString()}
       >
         {fmt(date)}
       </time>
 
-      <h1 class="text-2xl font-semibold text-content mb-4 tracking-tight" class:list={[isPersonal && 'italic']}>
+      <h1 class="text-2xl font-semibold text-content mb-4 tracking-tight">
         {title}
       </h1>
 
-      <p class="text-subtle leading-relaxed" class:list={[isPersonal && 'italic']}>{summary}</p>
+      <p class="text-secondary leading-relaxed">{summary}</p>
 
-      {!isPersonal && tags && tags.length > 0 && (
+      {tags && tags.length > 0 && (
         <ul class="flex flex-wrap gap-2 list-none m-0 p-0 mt-4" aria-label="Tags">
           {tags.map(tag => (
             <li>
-              <span class="font-mono text-xs text-subtle border border-edge px-2 py-0.5">
+              <span class="font-mono text-xs text-meta border border-edge px-2 py-0.5">
                 {tag}
               </span>
             </li>

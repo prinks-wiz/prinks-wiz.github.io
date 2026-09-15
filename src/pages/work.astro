@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SectionHero from '../components/SectionHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
 import WorkEntry from '../components/WorkEntry.astro';
 import { getCollection } from 'astro:content';
 
@@ -12,16 +12,20 @@ const sorted = entries.sort(
 );
 ---
 <BaseLayout
-  title="Work — Portfolio"
-  description="Research and professional experience in ML and robotics."
+  title="Work — Priyanka Vijaybaskar"
+  description="Research and professional experience in machine learning and perception."
 >
   <div class="max-w-[720px] mx-auto px-6 py-16">
 
-    <SectionHero
-      section="work"
-      title="Experience"
-      description="Where I've worked and what I've built. From robotics labs to spacecraft perception: learning to deploy real systems under real constraints."
-    />
+    <SectionHeader number="01" title="WORK" />
+
+    <h1 class="text-2xl font-semibold text-content tracking-tight mb-4">
+      Experience
+    </h1>
+    <p class="text-secondary leading-relaxed mb-12 max-w-[36rem]">
+      Where I've worked and what I built there. The hardware changes. The problem
+      does not: make a model that holds up when it can't be patched after the fact.
+    </p>
 
     {sorted.map(entry => (
       <WorkEntry

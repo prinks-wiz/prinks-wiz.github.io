@@ -6,7 +6,7 @@ date: 2026-02-01
 techStack: ["PyTorch", "LoRA", "LLaVA-1.5-7B", "Qwen2.5-VL", "A100", "Autonomous Driving", "VQA"]
 featured: true
 stat: "3.5x accuracy over vision-only baseline · 16K+ driving samples · A100"
-domainTag: "VISION / NLP"
+tags: ["VISION", "MULTIMODAL", "GENERALIZATION"]
 cardDescription: "Most autonomous driving datasets label actions from GPS waypoints, not what the camera sees. I built a VQA pipeline using LLaVA-1.5-7B and Qwen2.5-VL to inject visual navigation context into the training signal, diagnosing and correcting the label-source mismatch. LoRA fine-tuning kept the run tractable on a single A100. Result: 3.5x accuracy over vision-only baselines across 16K+ driving samples."
 ---
 

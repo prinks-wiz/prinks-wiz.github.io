@@ -6,7 +6,7 @@ date: 2026-01-01
 techStack: ["Kubernetes", "AWS", "kOps", "MySQL", "InnoDB", "GitHub Actions", "Helm", "ARM Graviton"]
 featured: false
 stat: "8,700+ RPS · 93.5% correctness · 41.7x throughput improvement"
-domainTag: "SYSTEMS"
+tags: ["INFRASTRUCTURE"]
 cardDescription: "A Kubernetes recommendation service that had to hit 8,700 RPS at 93.5% correctness on ARM Graviton instances, at minimum cost. Starting from ~200 RPS, I profiled and eliminated bottlenecks in sequence: schema denormalization (3.5x gain), InnoDB buffer pool tuning (cache hits from 60% to 98.4%), prepared statement caching, and auth TTL optimization. 41.7x throughput improvement. The infrastructure rebuilds from scratch in under 8 minutes."
 ---
 

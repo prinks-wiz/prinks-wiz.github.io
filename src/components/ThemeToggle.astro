@@ -6,7 +6,7 @@
 <button
   id="theme-toggle"
   aria-label="Toggle color scheme"
-  class="font-mono text-xs text-subtle hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded-none"
+  class="font-mono text-xs text-meta hover:text-content transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded-none"
 >
   <!-- Filled in by script below; default matches the inline head script -->
   <span id="theme-label">DARK</span>
@@ -17,17 +17,17 @@
   const label = document.getElementById('theme-label') as HTMLSpanElement;
 
   function current(): 'dark' | 'light' {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'dark' || stored === 'light') return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+    const match = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
+    if (match) return match[1] as 'dark' | 'light';
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
   }
 
   function apply(theme: 'dark' | 'light') {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     // Label shows the opposite — what clicking will switch you to
     label.textContent = theme === 'dark' ? 'LIGHT' : 'DARK';
+    // Let other scripts (e.g. the canvas animation) know colors changed.
+    document.dispatchEvent(new CustomEvent('themechange'));
   }
 
   // Sync label with whatever the head script already set
@@ -35,7 +35,14 @@
 
   btn.addEventListener('click', () => {
     const next = current() === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('theme', next);
+    document.cookie = `theme=${next}; path=/; max-age=31536000; samesite=lax`;
     apply(next);
+  });
+
+  // Follow the system preference live when the visitor hasn't chosen explicitly.
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    const match = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
+    if (match) return; // explicit choice wins
+    apply(e.matches ? 'dark' : 'light');
   });
 </script>

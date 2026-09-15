@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
   <!-- Minimal monogram favicon — replace with your own -->
-  <rect width="32" height="32" fill="#1E40AF"/>
+  <rect width="32" height="32" fill="#1F4FD8"/>
   <text
     x="16" y="22"
     text-anchor="middle"
     font-family="monospace"
     font-size="15"
     font-weight="700"
-    fill="#FAF9F6"
+    fill="#FAFAF8"
     letter-spacing="-1"
   >P</text>
 </svg>

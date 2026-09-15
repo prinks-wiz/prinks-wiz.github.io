@@ -15,8 +15,8 @@ const fmt = (d: Date) =>
 
 const dateRange = `${fmt(startDate)} to ${endDate ? fmt(endDate) : 'Present'}`;
 ---
-<article class="border-b border-edge py-8">
-  <div class="flex items-start justify-between gap-4 mb-3">
+<article class="rounded-sm border border-edge bg-surface-subtle p-6 md:p-8 mb-6 transition-colors hover:border-accent">
+  <div class="flex items-start justify-between gap-4 mb-4">
     <div class="flex items-start gap-4">
       <!-- Logo placeholder: swap with <img> when real logos are ready -->
       <div
@@ -25,30 +25,30 @@ const dateRange = `${fmt(startDate)} to ${endDate ? fmt(endDate) : 'Present'}`;
         aria-hidden="true"
       ></div>
       <div>
-        <h3 class="text-base font-semibold text-content">{role}</h3>
-        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
-          <span class="text-sm text-secondary">{org}</span>
+        <h3 class="text-2xl font-bold text-content">{role}</h3>
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+          <span class="text-base font-semibold text-secondary">{org}</span>
           {location && (
             <>
-              <span class="text-meta" aria-hidden="true">·</span>
-              <span class="font-mono text-xs text-meta">{location}</span>
+              <span class="text-secondary" aria-hidden="true">·</span>
+              <span class="font-mono text-xs font-semibold text-secondary">{location}</span>
             </>
           )}
         </div>
       </div>
     </div>
-    <time class="font-mono text-xs text-meta shrink-0 mt-0.5 text-right">
+    <time class="font-mono text-xs font-semibold text-secondary shrink-0 mt-1 text-right">
       {dateRange}
     </time>
   </div>
 
-  <p class="text-sm text-secondary leading-relaxed mb-4 pl-14">{description}</p>
+  <p class="text-base text-secondary leading-relaxed mb-5">{description}</p>
 
   {techStack && techStack.length > 0 && (
-    <ul class="flex flex-wrap gap-2 list-none m-0 p-0 pl-14" aria-label="Tech stack">
+    <ul class="flex flex-wrap gap-2 list-none m-0 p-0" aria-label="Tech stack">
       {techStack.map(tech => (
         <li>
-          <span class="font-mono text-xs text-meta border border-edge px-2 py-0.5">
+          <span class="font-mono text-xs font-semibold text-secondary bg-surface border border-edge px-2 py-0.5">
             {tech}
           </span>
         </li>

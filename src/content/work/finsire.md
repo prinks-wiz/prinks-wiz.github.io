@@ -4,7 +4,7 @@ role: "Data Science Intern"
 startDate: 2024-01-01
 endDate: 2024-04-30
 location: "Remote"
-description: "Built a time-series forecasting pipeline on 500K+ mutual fund records using Continuous Wavelet Transform and LSTM models. Designed automated ETL pipelines for real estate and SEBI financial data, and a TF-IDF semantic matching system that reached 92% precision. First exposure to production data pipelines at scale."
+description: "I built a forecasting pipeline over 500K+ mutual fund records using Continuous Wavelet Transform and LSTM models, then automated the ETL for the real estate and SEBI financial data feeding into it. Also shipped a TF-IDF matching system that hit 92% precision. This was my first real exposure to data pipelines running at production scale, and it showed."
 techStack: ["Python", "Continuous Wavelet Transform", "LSTM", "TF-IDF", "ETL", "Pandas", "Time Series Analysis"]
 ---
 

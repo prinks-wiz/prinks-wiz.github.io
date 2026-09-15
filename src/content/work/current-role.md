@@ -4,7 +4,7 @@ role: "Product and Systems Intern"
 startDate: 2024-06-01
 endDate: 2024-08-31
 location: "Remote"
-description: "Authored PRDs and competitive analysis documents for 25+ HRM system features. Conducted user research with 25+ healthcare providers and analyzed 1,000+ user interactions via Mixpanel, directly informing product decisions that improved appointment booking time by 2.4 minutes."
+description: "I wrote PRDs and competitive analysis for 25+ features in a healthcare HR platform. But the useful part was talking to the people who'd actually use them: 25+ healthcare providers, plus 1,000+ logged interactions pulled from Mixpanel. That's what got appointment booking time down by 2.4 minutes."
 techStack: ["Mixpanel", "User Research", "Product Requirements", "Stakeholder Management"]
 ---
 

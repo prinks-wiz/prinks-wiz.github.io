@@ -4,7 +4,7 @@ import SectionHeader from '../../components/SectionHeader.astro';
 import { getCollection } from 'astro:content';
 import { url } from '../../utils/url';
 
-const posts = await getCollection('writing');
+const posts = await getCollection('writing', ({ data }) => !data.draft);
 const sorted = posts.sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
